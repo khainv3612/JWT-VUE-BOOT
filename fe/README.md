@@ -31,10 +31,15 @@ Setup Vue App modules
 Run following command to install neccessary modules:
 
 npm install vue-router
+
 npm install vuex
+
 npm install vee-validate@2.2.15
-npm install axios
+
+npm install axio"
+
 npm install bootstrap jquery popper.js
+
 npm install @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons @fortawesome/vu
 
 => yarn serve
