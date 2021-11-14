@@ -19,10 +19,18 @@
                   type="text"
                   name="name"
                   v-model="user.username"
+                  minlength="5"
+                  maxlength="15"
                   id="name"
                   placeholder="Your Name"
                 />
               </div>
+              <span
+                class="error-msg-valid"
+                v-if="!isFirstLoad && !isValidUsername"
+                >{{ usernameErr }}</span
+              >
+
               <div class="form-group">
                 <label for="email"><i class="zmdi zmdi-email"></i></label>
                 <input
@@ -33,6 +41,13 @@
                   placeholder="Your Email"
                 />
               </div>
+              <span
+                class="error-msg-valid"
+                v-if="!isFirstLoad && !isValidEmail"
+              >
+                {{ emailErr }}
+              </span>
+
               <div class="form-group">
                 <label for="pass"><i class="zmdi zmdi-lock"></i></label>
                 <input
@@ -43,6 +58,13 @@
                   placeholder="Password"
                 />
               </div>
+              <span
+                class="error-msg-valid"
+                v-if="!isFirstLoad && !isValidPassword"
+              >
+                {{ passwordErr }}</span
+              >
+
               <div class="form-group">
                 <label for="re-pass"
                   ><i class="zmdi zmdi-lock-outline"></i
@@ -50,20 +72,31 @@
                 <input
                   type="password"
                   name="re_pass"
+                  v-model="repass"
                   id="re_pass"
                   placeholder="Repeat your password"
                 />
               </div>
+              <span
+                class="error-msg-valid"
+                v-if="!isFirstLoad && !isPassMatch"
+                >{{ repassErr }}</span
+              >
+
               <div class="form-group">
                 <input
                   type="checkbox"
                   name="agree-term"
                   id="agree-term"
+                  v-model="isAgree"
                   class="agree-term"
                 />
                 <label for="agree-term" class="label-agree-term"
                   ><span><span></span></span>I agree all statements in
                   <a href="#" class="term-service">Terms of service</a></label
+                ><br />
+                <span class="error-msg-valid" v-if="!isFirstLoad && !isAgree"
+                  >Please Agree</span
                 >
               </div>
               <div class="form-group form-button">
@@ -94,15 +127,27 @@
 
 <script>
 import User from "../models/user";
+import { CONSTANTS } from "../utils/constants";
 
 export default {
   name: "register-comp",
   data() {
     return {
       user: new User(null, "", "", ""),
+      repass: "",
       submitted: false,
       successful: false,
       message: "",
+      isFirstLoad: true,
+      isValidUsername: false,
+      isValidEmail: false,
+      isValidPassword: false,
+      isPassMatch: false,
+      usernameErr: CONSTANTS.USERNAME_ERR,
+      passwordErr: CONSTANTS.PASSWORD_ERR,
+      emailErr: CONSTANTS.EMAIL_ERR,
+      repassErr: CONSTANTS.PASS_NOT_MATCH,
+      isAgree: false,
     };
   },
   computed: {
@@ -113,6 +158,14 @@ export default {
 
   methods: {
     handleRegister() {
+      this.validForm();
+      if (
+        !this.isValidUsername ||
+        !this.isValidEmail ||
+        !this.isValidPassword ||
+        !this.isPassMatch
+      )
+        return;
       this.message = "";
       this.submitted = true;
       this.$validator.validate().then((isValid) => {
@@ -135,6 +188,22 @@ export default {
         }
       });
     },
+
+    validForm() {
+      this.isFirstLoad = false;
+      this.isValidUsername =
+        null != this.user.username &&
+        this.user.username.length > 4 &&
+        this.user.username.length < 16;
+
+      this.isValidEmail =
+        null != this.user.email && CONSTANTS.REGEX_EMAIL.test(this.user.email);
+
+      this.isValidPassword =
+        null != this.user.password &&
+        CONSTANTS.REGEX_PASSWORD.test(this.user.password);
+      this.isPassMatch = this.repass && this.repass === this.user.password;
+    },
   },
   mounted() {
     if (this.isLogin) {
@@ -144,4 +213,10 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.error-msg-valid {
+  color: brown;
+  font-size: 12px;
+  text-align: left;
+}
+</style>
